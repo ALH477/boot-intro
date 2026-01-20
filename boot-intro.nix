@@ -5,6 +5,11 @@ with lib;
 let
   cfg = config.services.boot-intro;
 
+  # Parse resolution into width/height for FFmpeg filters
+  resParts = lib.splitString "x" cfg.resolution;
+  resWidth = builtins.elemAt resParts 0;
+  resHeight = builtins.elemAt resParts 1;
+
   # ════════════════════════════════════════════════════════════════════════════
   # DeMoD Color Palettes — Design ≠ Marketing
   # Retro-tech brutalist aesthetic with CRT-era warmth
@@ -150,15 +155,15 @@ let
 
     ${pkgs.ffmpeg-full}/bin/ffmpeg -y -i audio.wav \
       ${optionalString hasBackgroundVideo "-stream_loop -1 -i ${cfg.backgroundVideo}"} \
-      ${optionalString (!hasBackgroundVideo) "-f lavfi -i color=c=${palette.background}:s=${cfg.resolution}"} \
+      ${optionalString (!hasBackgroundVideo) "-f lavfi -i color=c=${palette.background}:s=${resWidth}x${resHeight}"} \
       ${optionalString hasLogo "${if isGif then "-ignore_loop 0" else ""} -i ${cfg.logoImage}"} \
       -filter_complex "
-        [1:v]scale=${cfg.resolution}:force_original_aspect_ratio=increase,crop=${cfg.resolution},setsar=1[bg];
+        [1:v]scale=${resWidth}:${resHeight}:force_original_aspect_ratio=increase,crop=${resWidth}:${resHeight},setsar=1[bg];
 
         [0:a]asplit=2[a_viz][a_out_raw];
         [a_out_raw]afade=t=out:st=$FADE_START:d=${fadeDurationSecs}[a_out];
 
-        [a_viz]showwaves=s=${cfg.resolution}:mode=cline:colors=${palette.waveform}:scale=cbrt:draw=full[waves];
+        [a_viz]showwaves=s=${resWidth}x${resHeight}:mode=cline:colors=${palette.waveform}:scale=cbrt:draw=full[waves];
         [waves]split=2[w1][w2];
         [w2]vflip[w2f];
         [w1][w2f]overlay=0:(main_h-overlay_h)/2[sym];
