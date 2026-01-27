@@ -1,3 +1,4 @@
+```markdown
 # boot-intro
 
 A NixOS module for generating and displaying branded boot intro videos with real-time audio visualization. Part of the DeMoD (Design ≠ Marketing) ecosystem.
@@ -78,7 +79,7 @@ services.boot-intro = {
   
   # Branding
   titleText = "Oligarchy";
-  bottomText = "Initializing...";
+  bottomText = "Design ≠ Marketing";
   logoImage = ./assets/logo.png;
   logoScale = 0.4;
   
@@ -92,6 +93,10 @@ services.boot-intro = {
   waveformOpacity = 0.75;
   fadeDuration = 2.0;
   fillMode = "fill";
+
+  # Playback
+  volume = 100;
+  # playOnAllOutputs = true;  # Also play audio on all HDMI outputs (useful for external monitors/TVs with speakers)
 };
 ```
 
@@ -99,69 +104,71 @@ services.boot-intro = {
 
 ### Core
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `enable` | bool | `false` | Enable the boot intro service |
-| `videoFile` | path | `null` | Pre-rendered video (skips generation) |
-| `theme` | enum | `"classic"` | Color palette selection |
+| Option        | Type   | Default     | Description                              |
+|---------------|--------|-------------|------------------------------------------|
+| `enable`      | bool   | `false`     | Enable the boot intro service            |
+| `videoFile`   | path   | `null`      | Pre-rendered video (skips generation)    |
+| `theme`       | enum   | `"classic"` | Color palette selection                  |
 
 ### Visual
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `resolution` | string | `"1920x1080"` | Output resolution |
-| `titleText` | string | `"DeMoD"` | Top title text |
-| `bottomText` | string | `"Design ≠ Marketing"` | Bottom subtitle |
-| `logoImage` | path | `null` | Center logo (PNG/GIF) |
-| `logoScale` | float | `0.35` | Logo size relative to height |
-| `backgroundVideo` | path | `null` | Looping background video |
-| `waveformOpacity` | float | `0.75` | Visualization opacity (0.0–1.0) |
-| `fadeDuration` | float | `1.5` | Fade-out duration in seconds |
-| `fillMode` | enum | `"fill"` | `"fill"` or `"letterbox"` |
+| Option              | Type   | Default       | Description                                      |
+|---------------------|--------|---------------|--------------------------------------------------|
+| `resolution`        | string | `"1920x1080"` | Output resolution                                |
+| `titleText`         | string | `"DeMoD"`     | Top title text                                   |
+| `bottomText`        | string | `"Design ≠ Marketing"` | Bottom subtitle                         |
+| `logoImage`         | path   | `null`        | Center logo (PNG/GIF)                             |
+| `logoScale`         | float  | `0.35`        | Logo size relative to height                     |
+| `backgroundVideo`   | path   | `null`        | Looping background video                         |
+| `waveformOpacity`   | float  | `0.75`        | Visualization opacity (0.0–1.0)                   |
+| `fadeDuration`      | float  | `1.5`         | Fade-out duration in seconds                     |
+| `fillMode`          | enum   | `"fill"`      | `"fill"` or `"letterbox"`                        |
 
 ### Text Layout
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `titleSize` | int | `16` | Title font size (height ÷ N) |
-| `titleY` | int | `8` | Title Y position (height ÷ N) |
-| `bottomSize` | int | `28` | Bottom text font size |
-| `bottomY` | int | `10` | Bottom text Y offset |
+| Option        | Type | Default | Description                              |
+|---------------|------|---------|------------------------------------------|
+| `titleSize`   | int  | `16`    | Title font size (height ÷ N)             |
+| `titleY`      | int  | `8`     | Title Y position (height ÷ N from top)   |
+| `bottomSize`  | int  | `28`    | Bottom text font size                    |
+| `bottomY`     | int  | `10`    | Bottom text Y offset                     |
 
 ### Audio
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `soundFile` | path | `null` | Audio source (wav/mp3/flac/midi) |
-| `soundGain` | float | `2.0` | MIDI synthesis gain |
-| `soundFont` | path | FluidR3_GM | SF2 soundfont for MIDI |
+| Option       | Type  | Default                          | Description                              |
+|--------------|-------|----------------------------------|------------------------------------------|
+| `soundFile`  | path  | `null`                           | Audio source (wav/mp3/flac/midi)         |
+| `soundGain`  | float | `2.0`                            | MIDI synthesis gain                      |
+| `soundFont`  | path  | FluidR3_GM                       | SF2 soundfont for MIDI                   |
 
-### Service
+### Playback / Service
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `timeout` | int | `30` | Max playback time (seconds) |
+| Option              | Type | Default | Description                                                                 |
+|---------------------|------|---------|-----------------------------------------------------------------------------|
+| `timeout`           | int  | `30`    | Max playback time (seconds) before service exits                            |
+| `volume`            | int  | `100`   | Playback volume (0-100)                                                     |
+| `playOnAllOutputs`  | bool | `false` | Play audio simultaneously on internal speakers + all available HDMI outputs (spawns background audio-only mpv instances). Currently configured for common AMD laptop setups with multiple HDMI controllers. |
 
 ## Themes
 
-| Name | Primary | Description |
-|------|---------|-------------|
-| `classic` | `#00FF88` | Phosphor green — original DeMoD |
-| `amber` | `#FFB000` | Warm CRT terminal |
-| `cyan` | `#00FFFF` | Cool tech aesthetic |
-| `magenta` | `#FF00FF` | Synthwave influence |
-| `red` | `#FF3333` | Warning/alert mode |
-| `white` | `#FFFFFF` | High contrast accessibility |
-| `oligarchy` | `#7AA2F7` | Tokyo Night-inspired |
-| `archibald` | `#A6E3A1` | Catppuccin green |
+| Name         | Primary   | Description                     |
+|--------------|-----------|---------------------------------|
+| `classic`    | `#00FF88` | Phosphor green — original DeMoD |
+| `amber`      | `#FFB000` | Warm CRT terminal               |
+| `cyan`       | `#00FFFF` | Cool tech aesthetic             |
+| `magenta`    | `#FF00FF` | Synthwave influence             |
+| `red`        | `#FF3333` | Warning/alert mode              |
+| `white`      | `#FFFFFF` | High contrast accessibility     |
+| `oligarchy`  | `#7AA2F7`  | Tokyo Night-inspired            |
+| `archibald`  | `#A6E3A1`  | Catppuccin green                |
 
 ## How It Works
 
 1. **Build time**: The module generates an MP4 using FFmpeg with the configured audio, visuals, and theme. MIDI files are synthesized via FluidSynth.
 
-2. **Boot time**: A systemd oneshot service plays the video on TTY1 using mpv after Plymouth exits and before the display manager starts.
+2. **Boot time**: A systemd oneshot service plays the video on TTY1 using mpv (direct DRM + ALSA) after Plymouth exits and before the display manager starts. Hardware mixer controls are forcibly unmuted on the primary analog card for reliable audio.
 
-3. **Fallback**: If GPU initialization fails, mpv falls back to DRM output. Playback errors don't block boot.
+3. **Fallback**: If GPU initialization fails, mpv falls back appropriately. Playback errors don't block boot.
 
 ### Service Ordering
 
@@ -178,6 +185,7 @@ display-manager.service
 - NixOS 24.11 or later
 - GPU with working DRM/KMS (AMD, Intel, or NVIDIA with modesetting)
 - Audio output (optional but recommended)
+- `alsa-utils` (automatically added when module is enabled)
 
 ### Build Dependencies (handled by Nix)
 
@@ -188,6 +196,12 @@ display-manager.service
 - soundfont-fluid
 
 ## Troubleshooting
+
+### No audio during intro
+
+- The module now includes hardware-specific unmuting for common Realtek/AMD laptop audio (ALC295 + multiple HDMI controllers).
+- If using different hardware, audio may remain muted by default at early boot. Test with `journalctl -u boot-intro-player` and manually adjust mixer controls if needed.
+- Enable `playOnAllOutputs = true;` if you want audio on external HDMI displays/monitors with speakers.
 
 ### Video doesn't play
 
@@ -260,3 +274,62 @@ Developed by [DeMoD LLC](https://demod.ltd) as part of the Oligarchy NixOS distr
 ---
 
 *Design ≠ Marketing*
+```
+
+### Updated Example Integration (`configuration.nix` snippet)
+
+```nix
+# ════════════════════════════════════════════════════════════════════════════
+# Boot Intro Integration Example
+# Add to your main configuration.nix
+# ════════════════════════════════════════════════════════════════════════════
+
+{ config, pkgs, lib, inputs, nixpkgs-unstable, ... }:
+
+{
+  imports = [
+    ./modules/audio.nix
+    ./modules/boot-intro.nix  # ← Add this import
+  ];
+
+  # ... rest of your config ...
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # DeMoD Boot Intro
+  # ──────────────────────────────────────────────────────────────────────────
+  services.boot-intro = {
+    enable = true;
+
+    # Theme selection — pick your DeMoD palette
+    # Options: classic, amber, cyan, magenta, red, white, oligarchy, archibald
+    theme = "oligarchy";
+
+    # Branding
+    titleText = "Oligarchy";
+    bottomText = "Design ≠ Marketing";
+
+    # Optional: Your logo (PNG or animated GIF)
+    # logoImage = ./assets/demod-logo.png;
+    # logoScale = 0.4;
+
+    # Audio source — MIDI gets synthesized, audio files normalized
+    soundFile = ./assets/boot-chime.mid;
+    # Or use a wav/mp3/flac:
+    # soundFile = ./assets/boot-intro.wav;
+
+    # Optional: Background video (loops behind waveform)
+    # backgroundVideo = ./assets/grid-animation.mp4;
+
+    # Visual tuning
+    resolution = "2560x1600";  # Match your Framework 16 display
+    waveformOpacity = 0.7;
+    fadeDuration = 2.0;
+
+    # Playback options
+    volume = 100;
+    # playOnAllOutputs = true;  # Enable for simultaneous audio on all HDMI outputs (external monitors/TVs)
+  };
+
+  # ... rest of your config ...
+}
+```
