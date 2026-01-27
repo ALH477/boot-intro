@@ -1,4 +1,3 @@
-```markdown
 # boot-intro
 
 A NixOS module for generating and displaying branded boot intro videos with real-time audio visualization. Part of the DeMoD (Design ≠ Marketing) ecosystem.
