@@ -203,20 +203,61 @@ let
   finalVideoPath = if cfg.videoFile != null then cfg.videoFile else generatedVideo;
 
   playScript = pkgs.writeShellScript "boot-intro-play" ''
-    # Brief delay for DRM/KMS initialization
-    sleep 0.3
+    # Longer delay for audio/DRI init on laptops
+    sleep 4
 
-    # At early boot, PipeWire isn't running yet — use ALSA directly
+    background_pids=""
+
+    # Unmute and set volume on analog card (card 2 / Generic_1)
+    # Common Realtek/ALC295 controls — || true ignores missing ones
+    ${pkgs.alsa-utils}/bin/amixer -c 2 -q sset Master 90% unmute || true
+    ${pkgs.alsa-utils}/bin/amixer -c 2 -q sset PCM 100% unmute || true
+    ${pkgs.alsa-utils}/bin/amixer -c 2 -q sset Front 100% unmute || true
+    ${pkgs.alsa-utils}/bin/amixer -c 2 -q sset Speaker 100% unmute || true
+    ${pkgs.alsa-utils}/bin/amixer -c 2 -q sset Headphone 100% unmute || true
+    ${pkgs.alsa-utils}/bin/amixer -c 2 -q sset 'Auto-Mute Mode' Disabled || true
+
+    ${optionalString cfg.playOnAllOutputs ''
+      # Spawn audio-only instances for all HDMI outputs
+      for device in \
+        "alsa/hdmi:CARD=HDMI,DEV=0" \
+        "alsa/hdmi:CARD=HDMI,DEV=1" \
+        "alsa/hdmi:CARD=HDMI,DEV=2" \
+        "alsa/hdmi:CARD=HDMI,DEV=3" \
+        "alsa/hdmi:CARD=Generic,DEV=0" \
+        "alsa/hdmi:CARD=Generic,DEV=1" \
+        "alsa/hdmi:CARD=Generic,DEV=2"
+      do
+        ${pkgs.mpv}/bin/mpv \
+          --no-video \
+          --no-border --no-config --no-osd-bar --no-input-default-bindings \
+          --ao=alsa \
+          --audio-device="$device" \
+          --alsa-buffer-time=100000 \
+          --volume=${toString cfg.volume} \
+          --really-quiet \
+          ${finalVideoPath} &
+        background_pids="$background_pids $!"
+      done
+    ''}
+
+    # Primary playback: video + audio on analog stereo (internal speakers/headphones)
     ${pkgs.mpv}/bin/mpv \
       --fs --no-border --no-config --no-osd-bar --no-input-default-bindings \
       --vo=gpu,drm --gpu-context=auto --hwdec=auto-safe \
       --ao=alsa \
+      --audio-device=alsa/front:CARD=Generic_1,DEV=0 \
       --alsa-buffer-time=100000 \
       --volume=${toString cfg.volume} \
       --panscan=${if cfg.fillMode == "fill" then "1.0" else "0"} \
       --scale=ewa_lanczossharp \
       --really-quiet \
       ${finalVideoPath} || true
+
+    ${optionalString cfg.playOnAllOutputs ''
+      # Clean up background audio instances
+      kill $background_pids 2>/dev/null || true
+    ''}
   '';
 
 in
@@ -351,6 +392,17 @@ in
       description = "Playback volume (0-100).";
     };
 
+    playOnAllOutputs = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        If enabled, audio will play simultaneously on the internal analog speakers/headphones
+        and on all available HDMI outputs (7 ports across your ATI and Generic HD Audio cards).
+        This spawns background audio-only mpv instances for each HDMI output.
+        Useful when external monitors/TVs with speakers are connected via HDMI.
+      '';
+    };
+
     # ── Read-only Outputs ──
     videoPath = mkOption {
       type = types.path;
@@ -405,4 +457,3 @@ in
     };
   };
 }
-
