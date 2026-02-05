@@ -1,8 +1,8 @@
-# DeMoD Boot Intro - Unified System ⚡
+# DeMoD Boot Intro - Unified System 
 
-## 🎯 Quick Start
+## Quick Start
 
-**Use this file:** `boot-intro-unified.nix` ✨
+**Use this file:** `boot-intro-unified.nix` 
 
 This is the **one-file solution** with intelligent performance modes. Backwards compatible, feature-complete, optimized by default.
 
@@ -28,7 +28,7 @@ services.boot-intro = {
 
 ---
 
-## 🚀 Key Feature: Performance Mode
+## Key Feature: Performance Mode
 
 The unified system has a single switch for optimization:
 
@@ -51,9 +51,9 @@ services.boot-intro = {
 
 ---
 
-## 📖 Quick Configuration Guide
+## Quick Configuration Guide
 
-### 🏆 Fastest (Production)
+### Fastest (Production)
 ```nix
 services.boot-intro = {
   enable = true;
@@ -99,7 +99,7 @@ services.boot-intro = {
   enable = true;
   soundFile = ./boot.mp3;
 };
-# Now gets fast auto-detection automatically ✨
+# Now gets fast auto-detection automatically 
 ```
 
 ### From Split Files (improved/optimized)
